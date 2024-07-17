@@ -14,42 +14,44 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class MessagingRabbitmqApplication {
 
-	static final String topicExchangeName = "spring-boot-exchange";
+    static final String topicExchangeName = "spring-boot-exchange";
 
-	static final String queueName = "spring-boot";
+    static final String queueName = "spring-boot";
 
-	@Bean
-	Queue queue() {
-		return new Queue(queueName, false);
-	}
+    static final String routingKey = "foo.bar.#";
 
-	@Bean
-	TopicExchange exchange() {
-		return new TopicExchange(topicExchangeName);
-	}
+    public static void main(String[] args) throws InterruptedException {
+        SpringApplication.run(MessagingRabbitmqApplication.class, args);
+    }
 
-	@Bean
-	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with("foo.bar.#");
-	}
+    @Bean
+    Queue queue() {
+        return new Queue(queueName, false);
+    }
 
-	@Bean
-	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-			MessageListenerAdapter listenerAdapter) {
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
-		container.setQueueNames(queueName);
-		container.setMessageListener(listenerAdapter);
-		return container;
-	}
+    @Bean
+    TopicExchange exchange() {
+        return new TopicExchange(topicExchangeName);
+    }
 
-	@Bean
-	MessageListenerAdapter listenerAdapter(Receiver receiver) {
-		return new MessageListenerAdapter(receiver, "receiveMessage");
-	}
+    @Bean
+    Binding binding(Queue queue, TopicExchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    }
 
-	public static void main(String[] args) throws InterruptedException {
-		SpringApplication.run(MessagingRabbitmqApplication.class, args).close();
-	}
+    @Bean
+    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+                                             MessageListenerAdapter listenerAdapter) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueueNames(queueName);
+        container.setMessageListener(listenerAdapter);
+        return container;
+    }
+
+    @Bean
+    MessageListenerAdapter listenerAdapter(Receiver receiver) {
+        return new MessageListenerAdapter(receiver, "receiveMessage");
+    }
 
 }
