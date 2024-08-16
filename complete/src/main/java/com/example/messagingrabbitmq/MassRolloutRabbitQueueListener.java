@@ -13,7 +13,7 @@ public class MassRolloutRabbitQueueListener {
      *
      * @param message
      */
-    @RabbitListener(queues = MessagingRabbitmqApplication.queueName, group = "${rabbitmq.firemassrollout.group}")
+    @RabbitListener(queues = MessagingRabbitmqApplication.queueName2, group = "${rabbitmq.firemassrollout.group}")
     public void listenMassRolloutEvent(String message) {
         System.out.println("Received from Listener <" + message + ">");
     }
